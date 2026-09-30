@@ -42,19 +42,27 @@
 
 <div class="dlg" id="authDlg" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
   <div class="dlg-box">
-    <h2 id="authTitle">สมาชิกวันมงคล <button class="x-btn" type="button" data-auth-close aria-label="ปิด">✕</button></h2>
-    <div class="seg" role="group" aria-label="วิธีเข้าระบบ">
-      <button type="button" data-amode="login">เข้าสู่ระบบ</button><button type="button" data-amode="signup">สมัครใหม่</button><button type="button" data-amode="magic">ลิงก์ทางอีเมล</button>
+    <h2 id="authTitle"><span id="aTitle">สมาชิกวันมงคล</span> <button class="x-btn" type="button" data-auth-close aria-label="ปิด">✕</button></h2>
+    <div class="seg" role="group" aria-label="เลือกการทำรายการ" id="aTabs">
+      <button type="button" data-amode="login">เข้าสู่ระบบ</button><button type="button" data-amode="signup">สมัครสมาชิก</button>
     </div>
-    <form id="authForm">
-      <label id="aNameRow" hidden>ชื่อที่ใช้แสดง<input id="aName" maxlength="60" autocomplete="nickname"></label>
-      <label>อีเมล<input id="aEmail" type="email" required autocomplete="email"></label>
-      <label id="aPassRow">รหัสผ่าน<input id="aPass" type="password" minlength="6" autocomplete="current-password"></label>
+    <form id="authForm" autocomplete="on">
+      <label id="aNameRow" hidden>ชื่อที่ใช้แสดง<input id="aName" name="name" maxlength="60" autocomplete="nickname" placeholder="เช่น ยาม"></label>
+      <label id="aEmailRow">อีเมล<input id="aEmail" name="email" type="email" autocomplete="username" inputmode="email" placeholder="you@example.com"></label>
+      <label id="aPassRow">รหัสผ่าน
+        <span class="pw"><input id="aPass" name="password" type="password" minlength="8" autocomplete="current-password"><button type="button" class="pw-eye" data-eye="aPass" aria-label="แสดงรหัสผ่าน">แสดง</button></span>
+      </label>
+      <label id="aPass2Row" hidden>ยืนยันรหัสผ่าน
+        <span class="pw"><input id="aPass2" name="password-confirm" type="password" minlength="8" autocomplete="new-password"><button type="button" class="pw-eye" data-eye="aPass2" aria-label="แสดงรหัสผ่าน">แสดง</button></span>
+      </label>
+      <p class="hint" id="aHint" hidden>รหัสผ่านอย่างน้อย 8 ตัว ระบบจะเก็บบัญชีไว้และเข้าสู่ระบบให้ทันที เบราว์เซอร์จะถามว่าต้องการบันทึกรหัสผ่านไว้หรือไม่</p>
       <button class="btn primary" id="aSubmit" type="submit">เข้าสู่ระบบ</button>
+      <button class="linkbtn" type="button" id="aForgot">ลืมรหัสผ่าน?</button>
       <p class="formmsg" id="aMsg" role="status"></p>
     </form>
   </div>
 </div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <div class="site-stats" id="siteStats" hidden aria-label="สถิติเว็บไซต์"></div>
 <script src="config.js"></script>

@@ -191,35 +191,79 @@
     const lo = $('logoutBtn'); if (lo) lo.onclick = async () => { await sb.auth.signOut(); };
   }
   let mode = 'login';
-  function openAuth() { $('authDlg').hidden = false; setMode(mode); $('aEmail').focus(); }
-  function closeAuth() { $('authDlg').hidden = true; $('aMsg').textContent = ''; }
+  const TITLES = { login: 'เข้าสู่ระบบ', signup: 'สมัครสมาชิก', forgot: 'ลืมรหัสผ่าน', reset: 'ตั้งรหัสผ่านใหม่' };
+  function openAuth(m) { $('authDlg').hidden = false; setMode(m || (mode === 'reset' ? 'login' : mode)); ($(mode === 'signup' ? 'aName' : mode === 'reset' ? 'aPass' : 'aEmail')).focus(); }
+  function closeAuth() { $('authDlg').hidden = true; $('aMsg').textContent = ''; $('aMsg').className = 'formmsg'; }
   function setMode(m) {
     mode = m;
     document.querySelectorAll('[data-amode]').forEach(b => b.setAttribute('aria-pressed', b.dataset.amode === m));
-    $('aNameRow').hidden = m !== 'signup'; $('aPassRow').hidden = m === 'magic';
-    $('aSubmit').textContent = m === 'login' ? 'เข้าสู่ระบบ' : m === 'signup' ? 'สมัครสมาชิก' : 'ส่งลิงก์เข้าระบบ';
-    $('aPass').required = m !== 'magic';
-    $('aPass').autocomplete = m === 'signup' ? 'new-password' : 'current-password';
+    $('aTitle').textContent = TITLES[m];
+    $('aTabs').hidden = m === 'reset' || m === 'forgot';
+    $('aNameRow').hidden = m !== 'signup';
+    $('aEmailRow').hidden = m === 'reset';
+    $('aPassRow').hidden = m === 'forgot';
+    $('aPass2Row').hidden = !(m === 'signup' || m === 'reset');
+    $('aHint').hidden = !(m === 'signup' || m === 'reset');
+    $('aForgot').hidden = m !== 'login';
+    $('aEmail').required = m !== 'reset';
+    $('aPass').required = m !== 'forgot';
+    $('aPass2').required = m === 'signup' || m === 'reset';
+    $('aPass').autocomplete = m === 'login' ? 'current-password' : 'new-password';
+    $('aSubmit').textContent = { login: 'เข้าสู่ระบบ', signup: 'สมัครและบันทึกบัญชี', forgot: 'ส่งลิงก์ตั้งรหัสผ่านใหม่', reset: 'บันทึกรหัสผ่านใหม่' }[m];
+    $('aMsg').textContent = ''; $('aMsg').className = 'formmsg';
   }
-  document.addEventListener('click', e => { if (e.target.closest('[data-auth-open]')) openAuth(); if (e.target.closest('[data-auth-close]')) closeAuth(); const am = e.target.closest('[data-amode]'); if (am) setMode(am.dataset.amode); });
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-auth-open]')) openAuth();
+    if (e.target.closest('[data-auth-close]')) closeAuth();
+    const am = e.target.closest('[data-amode]'); if (am) setMode(am.dataset.amode);
+    const eye = e.target.closest('[data-eye]');
+    if (eye) { const inp = $(eye.dataset.eye), show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; eye.textContent = show ? 'ซ่อน' : 'แสดง'; eye.setAttribute('aria-label', show ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'); }
+  });
+  $('aForgot').onclick = () => setMode('forgot');
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('authDlg').hidden) closeAuth(); });
-  const TH_ERR = m => /Invalid login/i.test(m) ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' : /not confirmed/i.test(m) ? 'ยังไม่ได้ยืนยันอีเมล กรุณากดลิงก์ในอีเมลที่ส่งไปก่อน' : /already registered/i.test(m) ? 'อีเมลนี้สมัครแล้ว ลองเข้าสู่ระบบแทน' : /at least 6/i.test(m) ? 'รหัสผ่านต้องยาวอย่างน้อย 6 ตัวอักษร' : /rate limit/i.test(m) ? 'ส่งอีเมลบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่' : m;
+  let toastT;
+  function toast(t) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => el.hidden = true, 3500); }
+  const TH_ERR = m => /Invalid login/i.test(m) ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' : /not confirmed/i.test(m) ? 'บัญชีนี้ยังไม่ได้ยืนยันอีเมล' : /already registered|already been registered/i.test(m) ? 'อีเมลนี้สมัครไว้แล้ว กด "เข้าสู่ระบบ" แทนได้เลย' : /at least|characters/i.test(m) ? 'รหัสผ่านสั้นเกินไป ใช้อย่างน้อย 8 ตัว' : /rate limit|too many/i.test(m) ? 'ทำรายการบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่' : /invalid.*email|email.*invalid/i.test(m) ? 'รูปแบบอีเมลไม่ถูกต้อง' : /Failed to fetch|NetworkError|Load failed/i.test(m) ? 'เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่' : /should be different/i.test(m) ? 'รหัสผ่านใหม่ต้องไม่ซ้ำรหัสเดิม' : m;
   $('authForm').onsubmit = async e => {
     e.preventDefault();
-    const email = $('aEmail').value.trim(), password = $('aPass').value, msg = $('aMsg');
-    msg.className = 'formmsg'; msg.textContent = 'กำลังดำเนินการ…';
+    const email = $('aEmail').value.trim(), password = $('aPass').value, msg = $('aMsg'), btn = $('aSubmit');
+    const fail = t => { msg.className = 'formmsg err'; msg.textContent = t; btn.disabled = false; };
+    if ((mode === 'signup' || mode === 'reset') && password !== $('aPass2').value) return fail('รหัสผ่านสองช่องไม่ตรงกัน');
+    if ((mode === 'signup' || mode === 'reset') && password.length < 8) return fail('รหัสผ่านต้องยาวอย่างน้อย 8 ตัว');
+    btn.disabled = true; msg.className = 'formmsg'; msg.textContent = 'กำลังดำเนินการ…';
     const redirect = location.origin + location.pathname;
-    let res;
-    if (mode === 'login') res = await sb.auth.signInWithPassword({ email, password });
-    else if (mode === 'signup') res = await sb.auth.signUp({ email, password, options: { emailRedirectTo: redirect, data: { display_name: $('aName').value.trim() || email.split('@')[0] } } });
-    else res = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect } });
-    if (res.error) { msg.className = 'formmsg err'; msg.textContent = TH_ERR(res.error.message); return; }
-    if (mode === 'login' || (mode === 'signup' && res.data.session)) { closeAuth(); return; }
-    msg.className = 'formmsg ok';
-    msg.textContent = mode === 'signup' ? 'สมัครแล้ว กรุณาเปิดอีเมลและกดลิงก์ยืนยันเพื่อเริ่มใช้งาน' : 'ส่งลิงก์เข้าระบบไปที่อีเมลแล้ว เปิดลิงก์จากเครื่องนี้ได้เลย';
+    try {
+      if (mode === 'login') {
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) return fail(TH_ERR(error.message));
+        closeAuth(); toast('เข้าสู่ระบบแล้ว');
+      } else if (mode === 'signup') {
+        const name = $('aName').value.trim() || email.split('@')[0];
+        const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: redirect, data: { display_name: name } } });
+        if (error) return fail(TH_ERR(error.message));
+        if (!data.session) {
+          if (data.user && data.user.identities && data.user.identities.length === 0) return fail('อีเมลนี้สมัครไว้แล้ว กด "เข้าสู่ระบบ" แทนได้เลย');
+          const r = await sb.auth.signInWithPassword({ email, password });
+          if (r.error) return fail(TH_ERR(r.error.message));
+        }
+        closeAuth(); toast(`สมัครสมาชิกสำเร็จ ยินดีต้อนรับ ${name}`);
+        setView('mine');
+      } else if (mode === 'forgot') {
+        const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: redirect });
+        if (error) return fail(TH_ERR(error.message));
+        msg.className = 'formmsg ok'; msg.textContent = 'ส่งลิงก์ตั้งรหัสผ่านใหม่ไปที่อีเมลแล้ว เปิดลิงก์เพื่อกลับมาตั้งรหัส';
+      } else if (mode === 'reset') {
+        const { error } = await sb.auth.updateUser({ password });
+        if (error) return fail(TH_ERR(error.message));
+        closeAuth(); toast('เปลี่ยนรหัสผ่านเรียบร้อย');
+      }
+    } catch (err) { return fail(TH_ERR(String(err && err.message || err))); }
+    btn.disabled = false;
   };
+  const setView = v => { if (W.getView() !== v) W.setView(v); };
 
-  sb.auth.onAuthStateChange(async (_ev, session) => {
+  sb.auth.onAuthStateChange(async (ev, session) => {
+    if (ev === 'PASSWORD_RECOVERY') setTimeout(() => openAuth('reset'), 0);
     const nu = session?.user || null;
     if ((nu && nu.id) === (user && user.id) && loaded) { user = nu; return; }
     user = nu;
