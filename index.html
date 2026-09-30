@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>วันมงคล · ปฏิทินฤกษ์ดี 1900–2050</title>
+<meta name="description" content="ปฏิทินฤกษ์ดีรายวัน วันธงชัย วันอธิบดี วันอุบาทว์ วันโลกาวินาศ ปฏิทินจีนน้ำเอี๊ยง สีเสื้อมงคล วันพระ วันหยุด ตั้งแต่ปี 1900–2050">
+<meta property="og:title" content="วันมงคล · ปฏิทินฤกษ์ดี">
+<meta property="og:description" content="เช็กวันธงชัย วันอธิบดี วันกาลกิณี สีเสื้อ วันพระ และวันดีเฉพาะตัว">
+<meta name="theme-color" content="#C2549A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23C2549A'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='white' font-family='sans-serif'%3E%E0%B8%A4%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@500;600;700&family=Anuphan:wght@400;500;600&family=Noto+Serif+SC:wght@600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><div class="logo" aria-hidden="true">ฤ</div><div><h1>วันมงคล</h1><p>ปฏิทินฤกษ์ดี ไทย · จีน · วันพระ · วันหยุด พ.ศ. ๒๔๔๓–๒๕๙๓</p></div></div>
+    <div class="top-right">
+      <div class="seg" role="group" aria-label="มุมมอง">
+        <button type="button" data-view="day">รายวัน</button><button type="button" data-view="week">สัปดาห์</button><button type="button" data-view="month">เดือน</button><button type="button" data-view="mine">ของฉัน</button>
+      </div>
+      <div id="authBar"></div>
+    </div>
+  </div>
+</header>
+<main class="wrap">
+  <div class="nav">
+    <button class="btn icon" id="prev" type="button">‹<span>ก่อนหน้า</span></button>
+    <button class="btn" id="today" type="button">วันนี้</button>
+    <button class="btn icon" id="next" type="button">›<span>ถัดไป</span></button>
+    <label class="kbd" for="mSel">ใช้ปุ่มลูกศร ← → เลื่อนได้</label>
+    <span class="spacer"></span>
+    <select id="mSel" aria-label="เดือน"></select>
+    <select id="ySel" aria-label="ปี พ.ศ."></select>
+    <input type="date" id="dateIn" aria-label="ไปยังวันที่">
+  </div>
+  <div id="view"></div>
+  <p class="foot">คำนวณในหน้าเว็บจากตำราโหราศาสตร์ไทย (ปฏิทินจันทรคติแบบสุริยยาตร์, กาลโยคจากจุลศักราช, ทักษาสีเสื้อ) และปฏิทินจีนน้ำเอี๊ยง (ดิถีจีนจากตำแหน่งจันทร์–อาทิตย์, ก้านวัน, ดาวประจำวัน 12 ดวง) ตรวจกับวันพระใหญ่และตรุษจีนที่ประกาศจริงแล้ว แต่ปฏิทินหลวงหรือสำนักโหรแต่ละแห่งอาจต่างกันได้ ๑ วันในบางปี ก่อนใช้กับงานสำคัญควรเทียบกับปฏิทินหลวงหรือโหรที่ท่านนับถือ วันหยุดราชการย้อนหลังแสดงตามช่วงปีที่ประกาศใช้โดยประมาณ ไม่รวมวันหยุดชดเชยและวันหยุดพิเศษ เลขมงคลใช้เพื่อความเพลิดเพลินเท่านั้น</p>
+</main>
+
+<div class="dlg" id="authDlg" hidden role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="dlg-box">
+    <h2 id="authTitle">สมาชิกวันมงคล <button class="x-btn" type="button" data-auth-close aria-label="ปิด">✕</button></h2>
+    <div class="seg" role="group" aria-label="วิธีเข้าระบบ">
+      <button type="button" data-amode="login">เข้าสู่ระบบ</button><button type="button" data-amode="signup">สมัครใหม่</button><button type="button" data-amode="magic">ลิงก์ทางอีเมล</button>
+    </div>
+    <form id="authForm">
+      <label id="aNameRow" hidden>ชื่อที่ใช้แสดง<input id="aName" maxlength="60" autocomplete="nickname"></label>
+      <label>อีเมล<input id="aEmail" type="email" required autocomplete="email"></label>
+      <label id="aPassRow">รหัสผ่าน<input id="aPass" type="password" minlength="6" autocomplete="current-password"></label>
+      <button class="btn primary" id="aSubmit" type="submit">เข้าสู่ระบบ</button>
+      <p class="formmsg" id="aMsg" role="status"></p>
+    </form>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+<script src="member.js"></script>
+</body>
+</html>
