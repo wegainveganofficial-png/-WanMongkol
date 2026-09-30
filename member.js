@@ -227,6 +227,24 @@
     W.render();
   });
 
+  // ---------- site stats badge (views + members) ----------
+  const fmt = v => Number(v || 0).toLocaleString('th-TH');
+  function showStats(st) {
+    const el = $('siteStats'); if (!el || !st) return;
+    el.hidden = false;
+    el.innerHTML = `<span title="ยอดเข้าชมทั้งหมด (วันนี้ ${fmt(st.today)})"><i aria-hidden="true">👁</i> ${fmt(st.views)} <small>views</small></span><span class="sep" aria-hidden="true"></span><span title="สมาชิกที่ยืนยันอีเมลแล้ว"><i aria-hidden="true">👤</i> ${fmt(st.members)} <small>members</small></span>`;
+  }
+  async function stats() {
+    let counted = false;
+    try { counted = sessionStorage.getItem('wm-viewed') === '1'; } catch (e) { }
+    const { data, error } = await sb.rpc(counted ? 'site_stats' : 'record_view');
+    if (error) return;
+    if (!counted) { try { sessionStorage.setItem('wm-viewed', '1'); } catch (e) { } }
+    showStats(data);
+  }
+  stats();
+  setInterval(() => { if (!document.hidden) sb.rpc('site_stats').then(r => r.data && showStats(r.data)); }, 60000);
+
   window.MEMBER = { afterRender };
   renderAuthBar();
 })();
