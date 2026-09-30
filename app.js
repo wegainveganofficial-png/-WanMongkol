@@ -137,6 +137,10 @@
   $('prev').onclick = () => step(-1); $('next').onclick = () => step(1); $('today').onclick = () => go(TODAY);
   document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => { view = b.dataset.view; try { localStorage.setItem('pt-view', view); } catch (e) { } render(); });
   document.addEventListener('keydown', e => { if (e.target.closest('select,input')) return; if (e.key === 'ArrowLeft') step(-1); if (e.key === 'ArrowRight') step(1); });
+  // swipe left / right to move through days, weeks or months
+  let tx = null, ty = 0;
+  $('view').addEventListener('touchstart', e => { if (e.touches.length !== 1 || view === 'mine' || e.target.closest('input,select,textarea,form')) { tx = null; return; } tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+  $('view').addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null; if (Math.abs(dx) > 70 && Math.abs(dy) < 45) step(dx < 0 ? 1 : -1); }, { passive: true });
   document.addEventListener('click', e => { const c = e.target.closest('[data-go]'); if (c) { cur = +c.dataset.go; view = 'day'; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); } });
 
   // ---------- chips ----------
